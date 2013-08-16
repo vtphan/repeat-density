@@ -1,0 +1,7 @@
+Usage: go  run  repeat-density.go  genome-file
+
+This program computes the density of repeats in a genome.  It compute P(k | S)
+        for various values of k.
+
+Given a k-mer k and a genome S, P(k | S) = count(k) / |S|, where
+        count(k) = frequency of k in S and reverse complement of S.
