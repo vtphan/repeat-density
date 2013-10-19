@@ -7,7 +7,7 @@ import (
     "bufio"
     "runtime"
     "bytes"
-    "flag"
+    // "flag"
 )
 
 type index Index
@@ -85,7 +85,7 @@ func (I *Index) Krepeats(length int) float64{
 
 func (I *Index) SuffixLen(m int) int{
         stringLength := len(I.data)
-        l := stringLength - I.sa[m]        
+        l := stringLength - I.sa[m]
         return l
 }
 
@@ -111,8 +111,8 @@ func (I *Index) Block(m int, length int) int{
     return len(I.data) - 2
 }
 
-func fastaRead(quary_file *string) []byte {
-    f,err := os.Open(*quary_file)
+func fastaRead(sequence_file string) []byte {
+    f,err := os.Open(sequence_file)
     if err != nil{
         fmt.Printf("%v\n",err)
         os.Exit(1)
@@ -140,9 +140,12 @@ func fastaRead(quary_file *string) []byte {
 }
 
 func main(){
-    var quary_file = flag.String("q", "", "queries file")
-    flag.Parse()
-    stri := fastaRead(quary_file)
+    if len(os.Args) != 2 {
+        panic("must provide sequence file.")
+    }
+    // var sequence_file = flag.String("-s", "", "sequence file")
+    // flag.Parse()
+    stri := fastaRead(os.Args[1])
 
     runtime.GOMAXPROCS(4)
     suffixarray := suffixarray(stri)
