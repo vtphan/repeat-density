@@ -71,6 +71,7 @@ func (I *Index) Krepeats(length int) float64{
     var result float64
     i := 0
     for i < len(I.data)-1 {
+        // fmt.Println(i, I.sa[i], I.Block(i,length), numRepeatsWithLen)
         if I.sa[i] >= length {
             numRepeatsWithLen = numRepeatsWithLen + uint64(I.Block(i, length) - i + 2)
             i = I.Block(i, length) + 1
@@ -111,6 +112,7 @@ func (I *Index) Block(m int, length int) int{
     return len(I.data) - 2
 }
 
+
 func fastaRead(sequence_file string) []byte {
     f,err := os.Open(sequence_file)
     if err != nil{
@@ -148,16 +150,19 @@ func main(){
     stri := fastaRead(os.Args[1])
 
     runtime.GOMAXPROCS(4)
-    suffixarray := suffixarray(stri)
+    sa := suffixarray(stri)
 
-    suffixarray.DistinctSub()
+    sa.DistinctSub()
 
-    suffixarray.DistinctSubWithLen(100)
-    suffixarray.DistinctSubWithLen(200)
-    suffixarray.DistinctSubWithLen(400)
+    sa.DistinctSubWithLen(100)
+    sa.DistinctSubWithLen(200)
+    sa.DistinctSubWithLen(400)
+    // fmt.Println(lcparray.sa)
 
-    lcparray := suffixarray.Lcparray()
+    lcparray := sa.Lcparray()
     lcparray.Krepeats(100)
     lcparray.Krepeats(200)
     lcparray.Krepeats(400)
+    // fmt.Println()
+    // fmt.Println(lcparray.sa)
 }
