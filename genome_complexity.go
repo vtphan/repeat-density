@@ -39,68 +39,66 @@ func (idx *Index) build(filename string) {
     }
 }
 
-// compute longest common prefix of s[SA[m]:] and s[SA[m-1]:]
-func (I *Index) lcp_len(m int) int{
-    L, i, j := len(I.data), I.sa[m], I.sa[m-1]
-    for i<L && j<L && I.data[i]==I.data[j] {
+// length of longest common prefix of data[SA[m]:] and data[SA[m-1]:]
+func (idx *Index) lcp_len(m int) int{
+    L, i, j := len(idx.data), idx.sa[m], idx.sa[m-1]
+    for i<L && j<L && idx.data[i]==idx.data[j] {
         i++
         j++
     }
-    return j - I.sa[m-1]
+    return j - idx.sa[m-1]
 }
 
-func (I *Index) suffix_len(m int) int{
-    return len(I.data) - I.sa[m]
+func (idx Index) suffix_len(m int) int{
+    return len(idx.data) - idx.sa[m]
 }
 
 // D = rate of distinct substrings
-func (I *Index) D() float64{
-    numDistSub := uint64(I.suffix_len(0))
-    for i := 1; i < len(I.data); i++ {
-        numDistSub += uint64(I.suffix_len(i) - I.lcp[i-1])
+func (idx Index) D() float64{
+    numDistSub := uint64(idx.suffix_len(0))
+    for i := 1; i < len(idx.data); i++ {
+        numDistSub += uint64(idx.suffix_len(i) - idx.lcp[i-1])
     }
-    return 2.0 * (float64(numDistSub)/float64(len(I.data)))/ float64(len(I.data) + 1)
+    return 2.0 * (float64(numDistSub)/float64(len(idx.data)))/ float64(len(idx.data) + 1)
 }
 
 // Dk = rate of distinct k-mers
-func (I *Index) Dk(k int) float64{
+func (idx Index) Dk(k int) float64{
     var c uint64 = 0
-    for i := 1; i < len(I.data); i++ {
-        if I.lcp[i-1] < k && I.suffix_len(i) >= k {
+    for i := 1; i < len(idx.data); i++ {
+        if idx.lcp[i-1] < k && idx.suffix_len(i) >= k {
             c++
         }
     }
-    return float64(c)/float64(len(I.data) - k + 1)
+    return float64(c)/float64(len(idx.data) - k + 1)
 }
 
-
-
-func (I *Index) Block(m int, length int) int{
-    for i := m; i < len(I.data)-1; i++ {
-        if I.lcp[i] < length {
+func (idx Index) Block(m int, k int) int{
+    for i := m; i < len(idx.data)-1; i++ {
+        if idx.lcp[i] < k {
             return (i - 1)
         }
     }
-    return len(I.data) - 2
+    return len(idx.data) - 2
 }
 
 // Rk = k-repeat density
-func (I *Index) Rk(k int) float64{
+func (idx Index) Rk(k int) float64{
     var c uint64 = 0
     i := 0
-    for i < len(I.data)-1 {
-        // fmt.Println(i, I.lcp[i], I.Block(i,k), c)
-        if I.lcp[i] >= k {
-            c += uint64(I.Block(i, k) - i + 2)
-            i = I.Block(i, k) + 1
+    for i < len(idx.data)-1 {
+        // fmt.Println(i, idx.lcp[i], idx.Block(i,k), c)
+        if idx.lcp[i] >= k {
+            c += uint64(idx.Block(i, k) - i + 2)
+            i = idx.Block(i, k) + 1
         } else {
             i++
         }
     }
-    return float64(c)/float64(len(I.data) - k + 1)
+    return float64(c)/float64(len(idx.data) - k + 1)
 }
 
-// I  complexity (Becher & Heiber, 2012)
+// I complexity (Becher & Heiber, 2012)
 func (idx *Index) I() float64 {
     var sum float64 = 0
     for _, v := range idx.lcp {

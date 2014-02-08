@@ -1,1 +1,3 @@
+Compute various complexities of genomes, include repeat density, distinct substring density, and I complexity.
+
 Usage: go run genome-complexity.go genome-file.fasta
