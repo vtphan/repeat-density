@@ -7,11 +7,12 @@ Example:
 
 =========================================================================
 
-Train and predict performance using different complexity measures
-	
+train_n_test.py:
+
 usage: train_n_test.py [-h] complexity performances [performances ...]
 
-Analyze genome complexity and alignment performance.
+Train and predict short-read alignment performance using different complexity
+measures.
 
 positional arguments:
   complexity    file containing complexity values of genomes
