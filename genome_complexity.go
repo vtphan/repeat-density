@@ -123,6 +123,7 @@ func fastaRead(sequence_file string) []byte {
             byte_array.Write([]byte(line))
         }
     }
+    // do not add $ at the end of the text
     // byte_array.Write([]byte("$"))
     input := []byte(byte_array.String())
     return input
