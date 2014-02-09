@@ -1,3 +1,11 @@
-Compute various complexities of genomes, include repeat density, distinct substring density, and I complexity.
+genome-complexity.go:
+	Compute various complexities of genomes, include repeat density, distinct substring density, and I complexity.
 
 Usage: go run genome-complexity.go genome-file.fasta
+
+==================================================================
+
+analyze.py:
+	train and predict performance using different complexity measures
+	
+Usage: python analyze.py complexity.txt mrfast.txt
