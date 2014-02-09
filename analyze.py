@@ -38,34 +38,43 @@ def split_data(datax, catx, datay, caty, k):
 def rmsd(x,y):
    return math.sqrt(sum((x[i]-y[i])**2 for i in range(len(x)))/len(x)) if x else 0
 
+
 def test_prediction(slope, intercept, x, y):
    prediction = [ slope*i + intercept for i in x ]
    return rmsd(prediction, y)
 
-if __name__ == '__main__':
-   parser = argparse.ArgumentParser(description='Analyze genome complexity and alignment performance.')
-   parser.add_argument('complexity', help='file containing complexity values of genomes')
-   parser.add_argument('performance', help='file containing performance values of aligner')
-   args = vars(parser.parse_args())
-   complexities = tsv.Read(args['complexity'], '\t')
-   performances = tsv.Read(args['performance'], '\t')
 
-   check_data_integrity(complexities, performances)
-
-   k = 15
-   M = 200
+def train_and_test(complexity_data, performance_data, training_size, rounds):
    total_r, total_err = 0, 0
-   for i in range(M):
+   for i in range(rounds):
       train_comp, test_comp, train_perf, test_perf = \
-         split_data(complexities, 'D', performances, 'Rec-400', k)
+         split_data(complexity_data, 'D', performance_data, 'Rec-400', training_size)
       slope, intercept, r_value, p_value, std_err = stats.linregress(train_comp, train_perf)
       perf_err = test_prediction(slope, intercept, test_comp, test_perf)
       total_r, total_err = total_r + r_value, total_err + perf_err
       # print ("%.4f\t%.4f" % (r_value, perf_err))
+   return total_r/rounds, total_err/rounds
 
-   print ("Average r, error:\t%.4f, %.4f" % (total_r/M, total_err/M))
 
+if __name__ == '__main__':
+   TRAIN_FRAC = 0.5
+   ITER = 100
 
+   parser = argparse.ArgumentParser(description='Analyze genome complexity and alignment performance.')
+   parser.add_argument('complexity', help='file containing complexity values of genomes')
+   parser.add_argument('performances', nargs='+', help='file(s) containing performance values of aligner')
+   args = vars(parser.parse_args())
+   complexity_data = tsv.Read(args['complexity'], '\t')
+   training_size = int(len(complexity_data) * TRAIN_FRAC)
+   print ("Sample size\t%d\nTraining size\t%d\nIteration\t%d\nData\tMean_R\tMean_Error" %
+      (len(complexity_data), TRAIN_FRAC, ITER))
+
+   for performance in args['performances']:
+      performance_data = tsv.Read(performance, '\t')
+      check_data_integrity(complexity_data, performance_data)
+      average_R, average_err = \
+         train_and_test(complexity_data, performance_data, training_size, ITER)
+      print("%s\t%.4f\t%.4f" % (performance, average_R, average_err))
 
 
    # complexity_type = [ k for k in complexities.keys() if k!='ID' ]
