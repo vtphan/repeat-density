@@ -36,9 +36,7 @@ def split_data(datax, catx, datay, caty, k):
 
 
 def rmsd(x,y):
-   if not x:
-      return 0
-   return math.sqrt(sum((x[i]-y[i])**2 for i in range(len(x)))/float(len(x)))
+   return math.sqrt(sum((x[i]-y[i])**2 for i in range(len(x)))/len(x)) if x else 0
 
 def test_prediction(slope, intercept, x, y):
    prediction = [ slope*i + intercept for i in x ]
@@ -55,11 +53,11 @@ if __name__ == '__main__':
    check_data_integrity(complexities, performances)
 
    k = 15
-   M = 100
+   M = 200
    total_r, total_err = 0, 0
    for i in range(M):
       train_comp, test_comp, train_perf, test_perf = \
-         split_data(complexities, 'D', performances, 'Prec-400', k)
+         split_data(complexities, 'D', performances, 'Rec-400', k)
       slope, intercept, r_value, p_value, std_err = stats.linregress(train_comp, train_perf)
       perf_err = test_prediction(slope, intercept, test_comp, test_perf)
       total_r, total_err = total_r + r_value, total_err + perf_err
