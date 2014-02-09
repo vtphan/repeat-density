@@ -2,11 +2,24 @@ genome-complexity.go:
 	Compute various complexities of genomes, include repeat density, 
 	distinct substring density, and I complexity.
 
-Usage: go run genome-complexity.go genome-file.fasta
+Example:
+	go run genome-complexity.go genome-file.fasta
 
 =========================================================================
 
-analyze.py:
-	train and predict performance using different complexity measures
+Train and predict performance using different complexity measures
 	
-Usage: python analyze.py complexity.txt mrfast.txt
+usage: analyze.py [-h] complexity performances [performances ...]
+
+Analyze genome complexity and alignment performance.
+
+positional arguments:
+  complexity    file containing complexity values of genomes
+  performances  file(s) containing performance values of aligner
+
+optional arguments:
+  -h, --help    show this help message and exit
+
+
+Example: 
+	python analyze.py complexity.txt mrfast.txt
