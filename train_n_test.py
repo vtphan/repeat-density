@@ -61,7 +61,7 @@ if __name__ == '__main__':
    TRAIN_FRAC = 0.5
    ITER = 100
 
-   parser = argparse.ArgumentParser(description='Analyze genome complexity and alignment performance.')
+   parser = argparse.ArgumentParser(description='Train and predict short-read alignment performance using different complexity measures.')
    parser.add_argument('complexity', help='file containing complexity values of genomes')
    parser.add_argument('performances', nargs='+', help='file(s) containing performance values of aligner')
    args = vars(parser.parse_args())
