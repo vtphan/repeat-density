@@ -49,24 +49,20 @@ func (idx *Index) lcp_len(m int) int{
     return j - idx.sa[m-1]
 }
 
-func (idx Index) suffix_len(m int) int{
-    return len(idx.data) - idx.sa[m]
-}
-
 // D = rate of distinct substrings
 func (idx Index) D() float64{
-    numDistSub := uint64(idx.suffix_len(0))
+    c := uint64(len(idx.data) - idx.sa[0])
     for i := 1; i < len(idx.data); i++ {
-        numDistSub += uint64(idx.suffix_len(i) - idx.lcp[i-1])
+        c += uint64(len(idx.data) - idx.sa[i] - idx.lcp[i-1])
     }
-    return 2.0 * (float64(numDistSub)/float64(len(idx.data)))/ float64(len(idx.data) + 1)
+    return 2.0 * (float64(c)/float64(len(idx.data)))/ float64(len(idx.data) + 1)
 }
 
 // Dk = rate of distinct k-mers
 func (idx Index) Dk(k int) float64{
     var c uint64 = 0
     for i := 1; i < len(idx.data); i++ {
-        if idx.lcp[i-1] < k && idx.suffix_len(i) >= k {
+        if idx.lcp[i-1] < k && len(idx.data)-idx.sa[i] >= k {
             c++
         }
     }
@@ -127,7 +123,7 @@ func fastaRead(sequence_file string) []byte {
             byte_array.Write([]byte(line))
         }
     }
-    byte_array.Write([]byte("$"))
+    // byte_array.Write([]byte("$"))
     input := []byte(byte_array.String())
     return input
 }
@@ -138,6 +134,8 @@ func main(){
     }
     idx := new(Index)
     idx.build(os.Args[1])
+    // fmt.Println(idx.sa, idx.lcp)
+    // fmt.Println(idx.D(), idx.Dk(2), idx.Rk(2))
     fmt.Printf("I\tD\tD_100\tD_200\tD_400\tR_100\tR_200\tR_400\n")
     fmt.Printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n", idx.I(), idx.D(),
         idx.Dk(100), idx.Dk(200), idx.Dk(400), idx.Rk(100), idx.Rk(200), idx.Rk(400))
