@@ -18,11 +18,13 @@ class Row:
    def __init__(self, header, token):
       self.token = token
       self.fields = {}
+      self.field_positions = {}
       h = header.split(token)
       self.columns = len(h)
       for idx, t in enumerate(h):
          if t not in self.fields:
             self.fields[t] = idx
+            self.field_positions[idx] = t
       self.r = None
 
    def set(self, line):
@@ -54,6 +56,9 @@ class Read:
 
    def keys(self):
       return self.row.fields.keys()
+
+   def key_at(self, position):
+      return self.row.field_positions[position]
 
    def __contains__(self, key):
       return key in self.row.fields
