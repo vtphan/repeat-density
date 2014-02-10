@@ -68,7 +68,7 @@ if __name__ == '__main__':
    complexity_data = tsv.Read(args['complexity'], '\t')
    training_size = int(len(complexity_data) * TRAIN_FRAC)
    print ("Sample size\t%d\nTraining size\t%d\nIteration\t%d\nData\tMean_R\tMean_Error" %
-      (len(complexity_data), TRAIN_FRAC, ITER))
+      (len(complexity_data), training_size, ITER))
 
    for performance in args['performances']:
       performance_data = tsv.Read(performance, '\t')
