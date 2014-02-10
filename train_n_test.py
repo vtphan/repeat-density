@@ -77,34 +77,32 @@ if __name__ == '__main__':
    parser = argparse.ArgumentParser(description='Train and predict short-read alignment performance using different complexity measures.')
    parser.add_argument('complexity', help='file containing complexity values of genomes')
    parser.add_argument('aligners', nargs='+', help='file(s) containing performance values of aligner')
-   parser.add_argument('TRAIN_FRAC', default=0.5, nargs='?', type=float, help='fraction of data used for training')
+   parser.add_argument('TRAIN_FRAC', type=float, help='fraction of data used for training')
 
-   # parser.add_argument('x', help='I, D, D100, D200, D400, R100, R200, R400')
-   # parser.add_argument('y', help='Prec-100, Prec-200, Prec-400, Rec-100, Rec-200, Rec-400')
    args = vars(parser.parse_args())
 
    complexity_data = tsv.Read(args['complexity'], '\t')
    TRAIN_FRAC = args['TRAIN_FRAC']
    training_size = int(len(complexity_data) * TRAIN_FRAC)
-   # x = args['x']
-   # y = args['y']
 
-   print ("Sample size\t%d\nTraining size\t%d (%.2f * %d)\nIteration\t%d\nData\tMean_R\tMean_Error" % (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data), ITER))
+   print ("Sample size\t%d\nTraining size\t%d (%.2f * %d)\nIteration\t%d" %
+      (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data), ITER))
+
+   print("\t\t%s" % '\t'.join(x[:2]+'_'+y.split('-')[0][0]+y.split('-')[1][0] for x, ys in comparisons.items() for y in ys))
 
    for aligner in args['aligners']:
       performance_data = tsv.Read(aligner, '\t')
       check_data_integrity(complexity_data, performance_data)
-      R, err, label = [], [], []
+      R, err = [], []
       for x, ys in comparisons.items():
          for y in ys:
             average_R, average_err = \
                train_and_test(complexity_data, performance_data, x, y, training_size, ITER)
             R.append(average_R)
             err.append(average_err)
-            label.append('%s_%s' % (x[:2], y.split('-')[0][0] + y.split('-')[1][0]))
-      print("%s average R (row 1) and average error (row 2)\n%s" % (aligner, '\t'.join(label)))
-      print("%s" % '\t'.join([str(round(i,4)) for i in R]))
-      print("%s" % '\t'.join([str(round(i,4)) for i in err]))
+      print("%s" % aligner)
+      print("mean_R  \t%s" % '\t'.join([str(round(i,4)) for i in R]))
+      print("mean_err\t%s" % '\t'.join([str(round(i,4)) for i in err]))
 
    # complexity_type = [ k for k in complexities.keys() if k!='ID' ]
    # performance_type = [ k for k in performances.keys() if k!='ID' ]

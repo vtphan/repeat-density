@@ -9,7 +9,7 @@ Example:
 
 train_n_test.py:
 
-usage: train_n_test.py [-h] complexity aligners [aligners ...] [TRAIN_FRAC]
+usage: train_n_test.py [-h] complexity aligners [aligners ...] TRAIN_FRAC
 
 Train and predict short-read alignment performance using different complexity
 measures.
