@@ -9,18 +9,19 @@ Example:
 
 train_n_test.py:
 
-usage: train_n_test.py [-h] complexity performances [performances ...]
+usage: train_n_test.py [-h] complexity aligners [aligners ...] [TRAIN_FRAC]
 
 Train and predict short-read alignment performance using different complexity
 measures.
 
 positional arguments:
-  complexity    file containing complexity values of genomes
-  performances  file(s) containing performance values of aligner
+  complexity  file containing complexity values of genomes
+  aligners    file(s) containing performance values of aligner
+  TRAIN_FRAC  fraction of data used for training
 
 optional arguments:
-  -h, --help    show this help message and exit
+  -h, --help  show this help message and exit
 
 
-Example: 
-	python train_n_test.py complexity.txt mrfast.txt seqalto.txt
+Example: using 40% of data for training, 60% for testing
+	python train_n_test.py complexity.txt mrfast.txt seqalto.txt 0.4
