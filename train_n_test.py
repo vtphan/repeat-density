@@ -9,9 +9,12 @@ import math
 # y = slope * x + intercept
 from scipy import stats
 
+IGNORE = [] #['NT_167185.1', 'CM001276'] #, 'FP929060', 'NT_077528.2']
+
 def check_data_integrity(data1, data2):
    x = [ r['ID'] for r in data1 ]
    y = [ r['ID'] for r in data2 ]
+
    if x != y:
       print("Order of genomes in both files are not the same.")
       print(x)
@@ -20,8 +23,8 @@ def check_data_integrity(data1, data2):
 
 
 def split_data(datax, catx, datay, caty, k):
-   x = [float(r[catx]) for r in datax]
-   y = [float(r[caty]) for r in datay]
+   x = [float(r[catx]) for r in datax if r['ID'] not in IGNORE]
+   y = [float(r[caty]) for r in datay if r['ID'] not in IGNORE]
    assert(len(x) == len(y))
    train_x, test_x, train_y, test_y, = [], [], [], []
    train_idx = random.sample(xrange(len(x)), k)
@@ -36,13 +39,15 @@ def split_data(datax, catx, datay, caty, k):
    return train_x, test_x, train_y, test_y
 
 
-def rmsd(x,y):
-   return math.sqrt(sum((x[i]-y[i])**2 for i in range(len(x)))/len(x)) if x else 0
-
+def error(x,y,dim=1):
+   if dim==1: # mean absolute error
+      return sum(abs(x[i]-y[i]) for i in range(len(x)))/float(len(x)) if x else 0
+   else:  # mean square error
+      return math.sqrt(sum((x[i]-y[i])**2 for i in range(len(x)))/len(x)) if x else 0
 
 def test_prediction(slope, intercept, x, y):
    prediction = [ slope*i + intercept for i in x ]
-   return rmsd(prediction, y)
+   return error(prediction, y, 1)
 
 
 def train_and_test(complexity_data, performance_data, x, y, training_size, rounds):
@@ -64,8 +69,9 @@ def train_and_test(complexity_data, performance_data, x, y, training_size, round
 
 
 if __name__ == '__main__':
-   ITER = 100
+   ITER = 200
    comparisons = dict (
+      I = ['Prec-100','Rec-100','Prec-200','Rec-200','Prec-400','Rec-400'],
       D = ['Prec-100','Rec-100','Prec-200','Rec-200','Prec-400','Rec-400'],
       D100 = ['Prec-100', 'Rec-100'],
       D200 = ['Prec-200', 'Rec-200'],
@@ -83,33 +89,25 @@ if __name__ == '__main__':
 
    complexity_data = tsv.Read(args['complexity'], '\t')
    TRAIN_FRAC = args['TRAIN_FRAC']
-   training_size = int(len(complexity_data) * TRAIN_FRAC)
+   training_size = int((len(complexity_data) - len(IGNORE)) * TRAIN_FRAC)
 
-   print ("Sample size\t%d\nTraining size\t%d (%.2f * %d)\nIteration\t%d" %
-      (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data), ITER))
+   print ("Sample size\t%d\nTraining size\t%d (%.2f * (%d-%d))\nIteration\t%d" %
+      (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data),len(IGNORE), ITER))
 
-   print("\t\t%s" % '\t'.join(x[:2]+'_'+y.split('-')[0][0]+y.split('-')[1][0] for x, ys in comparisons.items() for y in ys))
+   print("\t\t%s" % '\t'.join(x[:2]+'_'+y.split('-')[0][0]+y.split('-')[1][0] for x, ys in sorted(comparisons.items()) for y in ys))
 
    for aligner in args['aligners']:
       performance_data = tsv.Read(aligner, '\t')
       check_data_integrity(complexity_data, performance_data)
       R, err = [], []
-      for x, ys in comparisons.items():
+      for x, ys in sorted(comparisons.items()):
          for y in ys:
             average_R, average_err = \
                train_and_test(complexity_data, performance_data, x, y, training_size, ITER)
             R.append(average_R)
             err.append(average_err)
       print("%s" % aligner)
-      print("mean_R  \t%s" % '\t'.join([str(round(i,4)) for i in R]))
-      print("mean_err\t%s" % '\t'.join([str(round(i,4)) for i in err]))
+      print("mean_R  \t%s" % '\t'.join([str(round(i,3)) for i in R]))
+      print("mean_err\t%s" % '\t'.join([str(round(i,3)) for i in err]))
 
-   # complexity_type = [ k for k in complexities.keys() if k!='ID' ]
-   # performance_type = [ k for k in performances.keys() if k!='ID' ]
-   # for c in complexity_type:
-   #    for p in performance_type:
-   #       c_val = [ float(r[c]) for r in complexities ]
-   #       p_val = [ float(r[p]) for r in performances ]
-   #       slope, intercept, r_value, p_value, std_err = stats.linregress(c_val, p_val)
-   #       print "%s %s\t%f\t%f\t%f" % (c, p, r_value, p_value, std_err)
 
