@@ -4,12 +4,15 @@ import sys
 import argparse
 import random
 import math
+import os
 
 # slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
 # y = slope * x + intercept
 from scipy import stats
 
-IGNORE = [] #['NT_167185.1', 'CM001276'] #, 'FP929060', 'NT_077528.2']
+IGNORE = []
+
+BIAS_TRAIN_DATA = []
 
 def check_data_integrity(data1, data2):
    x = [ r['ID'] for r in data1 ]
@@ -28,7 +31,6 @@ def split_data(datax, catx, datay, caty, k):
    assert(len(x) == len(y))
    train_x, test_x, train_y, test_y, = [], [], [], []
    train_idx = random.sample(xrange(len(x)), k)
-   # print train_idx
    for i in range(len(x)):
       if i in train_idx:
          train_x.append(x[i])
@@ -36,6 +38,14 @@ def split_data(datax, catx, datay, caty, k):
       else:
          test_x.append(x[i])
          test_y.append(y[i])
+   return train_x, test_x, train_y, test_y
+
+
+def biased_split(datax, catx, datay, caty):
+   train_x = [float(r[catx]) for r in datax if r['ID'] in BIAS_TRAIN_DATA]
+   test_x = [float(r[catx]) for r in datax if r['ID'] not in BIAS_TRAIN_DATA]
+   train_y = [float(r[caty]) for r in datay if r['ID'] in BIAS_TRAIN_DATA]
+   test_y = [float(r[caty]) for r in datay if r['ID'] not in BIAS_TRAIN_DATA]
    return train_x, test_x, train_y, test_y
 
 
@@ -53,8 +63,12 @@ def test_prediction(slope, intercept, x, y):
 def train_and_test(complexity_data, performance_data, x, y, training_size, rounds):
    total_r, total_err = 0, 0
    for i in range(rounds):
-      train_comp, test_comp, train_perf, test_perf = \
-         split_data(complexity_data, x, performance_data, y, training_size)
+      if BIAS_TRAIN_DATA:
+         train_comp, test_comp, train_perf, test_perf = \
+            biased_split(complexity_data, x, performance_data, y)
+      else:
+         train_comp, test_comp, train_perf, test_perf = \
+            split_data(complexity_data, x, performance_data, y, training_size)
 
       # train on training data set
       slope, intercept, r_value, p_value, std_err = stats.linregress(train_comp, train_perf)
@@ -63,51 +77,54 @@ def train_and_test(complexity_data, performance_data, x, y, training_size, round
       # use linear model to predict on testing data set
       perf_err = test_prediction(slope, intercept, test_comp, test_perf)
       total_err += perf_err
-
       # print ("%.4f\t%.4f" % (r_value, perf_err))
+
    return total_r/rounds, total_err/rounds
 
 
+
+def run(args, complexity_keys, perf_key, training_size, ITER):
+   print ("Performance:\t%s" % perf_key)
+   print("\t\t%s" % '\t'.join(complexity_keys))
+
+   for aligner in os.listdir(args['dir']):
+      performance_data = tsv.Read(os.path.join(args['dir'], aligner), '\t')
+      check_data_integrity(complexity_data, performance_data)
+      R, err = [], []
+      for x in complexity_keys:
+         y = perf_key
+         average_R, average_err = \
+            train_and_test(complexity_data, performance_data, x, y, training_size, ITER)
+         R.append(average_R)
+         err.append(average_err)
+      print("%s" % aligner)
+      print("mean_R  \t%s" % '\t'.join([str(round(i,2)) for i in R]))
+      print("mean_err\t%s" % '\t'.join([str(round(i,4)) for i in err]))
+
+
+
 if __name__ == '__main__':
-   ITER = 200
-   comparisons = dict (
-      I = ['Prec-100','Rec-100','Prec-200','Rec-200','Prec-400','Rec-400'],
-      D = ['Prec-100','Rec-100','Prec-200','Rec-200','Prec-400','Rec-400'],
-      D100 = ['Prec-100', 'Rec-100'],
-      D200 = ['Prec-200', 'Rec-200'],
-      D400 = ['Prec-400', 'Rec-400'],
-      R100 = ['Prec-100', 'Rec-100'],
-      R200 = ['Prec-200', 'Rec-200'],
-      R400 = ['Prec-400', 'Rec-400'],
-   )
    parser = argparse.ArgumentParser(description='Train and predict short-read alignment performance using different complexity measures.')
    parser.add_argument('complexity', help='file containing complexity values of genomes')
-   parser.add_argument('aligners', nargs='+', help='file(s) containing performance values of aligner')
-   parser.add_argument('TRAIN_FRAC', type=float, help='fraction of data used for training')
-
+   parser.add_argument('training_portion', type=float, help='fraction of data used for training')
+   parser.add_argument('dir', help='directory containing text files storing aligner performance')
+   parser.add_argument('performance_keys', nargs='+', help='Prec-100, Rec-100, Prec-75, Rec-75, Prec-50, Rec-50, ...')
    args = vars(parser.parse_args())
 
    complexity_data = tsv.Read(args['complexity'], '\t')
-   TRAIN_FRAC = args['TRAIN_FRAC']
-   training_size = int((len(complexity_data) - len(IGNORE)) * TRAIN_FRAC)
+   TRAIN_FRAC = args['training_portion']
+   training_size = int((len(complexity_data) - len(IGNORE)) * TRAIN_FRAC) if not BIAS_TRAIN_DATA else len(BIAS_TRAIN_DATA)
+   ITER = 100 if (not BIAS_TRAIN_DATA) and (training_size < len(complexity_data)) else 1
 
    print ("Sample size\t%d\nTraining size\t%d (%.2f * (%d-%d))\nIteration\t%d" %
       (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data),len(IGNORE), ITER))
 
-   print("\t\t%s" % '\t'.join(x[:2]+'_'+y.split('-')[0][0]+y.split('-')[1][0] for x, ys in sorted(comparisons.items()) for y in ys))
 
-   for aligner in args['aligners']:
-      performance_data = tsv.Read(aligner, '\t')
-      check_data_integrity(complexity_data, performance_data)
-      R, err = [], []
-      for x, ys in sorted(comparisons.items()):
-         for y in ys:
-            average_R, average_err = \
-               train_and_test(complexity_data, performance_data, x, y, training_size, ITER)
-            R.append(average_R)
-            err.append(average_err)
-      print("%s" % aligner)
-      print("mean_R  \t%s" % '\t'.join([str(round(i,3)) for i in R]))
-      print("mean_err\t%s" % '\t'.join([str(round(i,3)) for i in err]))
+   complexity_keys = ['D12', 'D25', 'D50', 'D100', 'D200', 'D400', 'R12', 'R25', 'R50', 'R100', 'R200','R400', 'D', 'I' ]
+
+   for perf_key in args['performance_keys']:
+      run(args, complexity_keys, perf_key, training_size, ITER)
+      print("\n")
+
 
 
