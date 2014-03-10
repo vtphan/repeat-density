@@ -57,4 +57,4 @@ Example:
 * Performance keys are Prec-100 and Rec-100.
 
 
-    python cross_validation.py complexity.txt 0.5 100 Prec-100 Rec-100
+> python cross_validation.py complexity.txt 0.5 100 Prec-100 Rec-100
