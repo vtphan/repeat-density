@@ -10,21 +10,25 @@ Install genome-complexity.go:
 
 =========================================================================
 
-train_n_test.py:
+cross_validation.py:
 
-usage: train_n_test.py [-h] complexity aligners [aligners ...] TRAIN_FRAC
+usage: cross_validation.py [-h]
+                           complexity training_portion dir performance_keys
+                           [performance_keys ...]
 
 Train and predict short-read alignment performance using different complexity
 measures.
 
 positional arguments:
-  complexity  file containing complexity values of genomes
-  aligners    file(s) containing performance values of aligner
-  TRAIN_FRAC  fraction of data used for training
+  complexity        file containing complexity values of genomes
+  training_portion  fraction of data used for training
+  dir               directory containing text files storing aligner
+                    performance
+  performance_keys  Prec-100, Rec-100, Prec-75, Rec-75, Prec-50, Rec-50, ...
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help        show this help message and exit
 
 
 Example: using 40% of data for training, 60% for testing
-	python train_n_test.py complexity.txt mrfast.txt seqalto.txt 0.4
+	python cross_validation.py complexity.txt 100 Prec-100 Rec-100
