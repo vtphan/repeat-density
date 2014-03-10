@@ -53,7 +53,7 @@ func main(){
 Example:
 
 - Using 50% of data for training, 50% for testing.
-- Performance files are in directory "100"
-- Performance keys are Prec-100 and Rec-100
+- Performance files are in directory "100".
+- Performance keys are Prec-100 and Rec-100.
 
     python cross_validation.py complexity.txt 0.5 100 Prec-100 Rec-100
