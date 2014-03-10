@@ -5,7 +5,7 @@ genome-complexity.go:
 Install genome-complexity.go:
    go get github.com/vtphan/sequence-complexity
 
-```
+```go
 
 package main
 
