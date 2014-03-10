@@ -8,6 +8,9 @@ Install genome-complexity.go:
 
 	go get github.com/vtphan/sequence-complexity
 
+
+Example usage:
+
 ~~~ go
 package main
 
