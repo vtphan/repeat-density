@@ -1,9 +1,12 @@
 genome-complexity.go:
-	Compute various complexities of genomes, include repeat density, 
+	Compute various complexities of genomes, include repeat density,
 	distinct substring density, and I complexity.
 
 Example:
-	go run genome-complexity.go genome-file.fasta
+	go run compute_didkdr.go genome-file.fasta
+
+Install genome-complexity.go:
+   go get github.com/vtphan/sequence-complexity
 
 =========================================================================
 
