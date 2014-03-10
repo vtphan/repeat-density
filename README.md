@@ -50,6 +50,6 @@ func main(){
       -h, --help        show this help message and exit
 
 
-Example: using 40% of data for training, 60% for testing
+Example: using 50% of data for training, 50% for testing
 
-    python cross_validation.py complexity.txt 100 Prec-100 Rec-100
+    python cross_validation.py complexity.txt 0.5 100 Prec-100 Rec-100
