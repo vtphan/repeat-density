@@ -1,8 +1,9 @@
 /*
 Author: Vinhthuy Phan, Shanshan Gao
 Copyright 2014
+Measures of complexity: I, D, Dk, Rk
 */
-package main
+package genomecomplexity
 
 import (
     "fmt"
@@ -11,7 +12,6 @@ import (
     "bufio"
     "bytes"
     "math"
-    // "flag"
 )
 
 type Index struct{
@@ -26,7 +26,7 @@ func (x *Index) Swap(i, j int)      { x.sa[i], x.sa[j] = x.sa[j], x.sa[i] }
 func (a *Index) at(i int) []byte    { return a.data[a.sa[i]:] }
 
 
-func (idx *Index) build(filename string) {
+func (idx *Index) Build(filename string) {
     idx.data = fastaRead(filename)
     idx.sa = make([]int, len(idx.data))
     idx.lcp = make([]int, len(idx.data)-1)
@@ -129,16 +129,3 @@ func fastaRead(sequence_file string) []byte {
     return input
 }
 
-func main(){
-    if len(os.Args) != 2 {
-        panic("must provide sequence file.")
-    }
-    idx := new(Index)
-    idx.build(os.Args[1])
-    // fmt.Println(idx.sa, idx.lcp)
-    // fmt.Println(idx.D(), idx.Dk(2), idx.Rk(2))
-    fmt.Printf("Genome\tI\tD\tD_100\tD_200\tD_400\tR_100\tR_200\tR_400\n")
-    fmt.Printf("%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n",
-        os.Args[1], idx.I(), idx.D(),
-        idx.Dk(100), idx.Dk(200), idx.Dk(400), idx.Rk(100), idx.Rk(200), idx.Rk(400))
-}
