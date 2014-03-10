@@ -5,7 +5,8 @@ genome-complexity.go:
 	distinct substring density, and I complexity.
 
 Install genome-complexity.go:
-   go get github.com/vtphan/sequence-complexity
+
+	go get github.com/vtphan/sequence-complexity
 
 ~~~ go
 package main
