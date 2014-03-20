@@ -38,6 +38,8 @@ class Row:
 
    def __getitem__(self, key):
       if self.r:
+         if key not in self.fields:
+            print "Key %s does not exist. Available keys are %s" % (key, self.fields)
          return self.r[self.fields[key]]
       return None
       # return self.r[self.fields[key]] if self.r else None

@@ -10,7 +10,7 @@ import os
 # y = slope * x + intercept
 from scipy import stats
 
-IGNORE = []
+IGNORE = ['CM000777.fasta']
 
 BIAS_TRAIN_DATA = []
 
@@ -84,8 +84,11 @@ def train_and_test(complexity_data, performance_data, x, y, training_size, round
 
 
 def run(args, complexity_keys, perf_key, training_size, ITER):
-   print ("Performance:\t%s" % perf_key)
-   print("\t\t%s" % '\t'.join(complexity_keys))
+   if training_size < len(complexity_data):
+      print ("Performance:\t%s (First-row: average R, Second-row: average error)" % perf_key)
+   else:
+      print ("Performance:\t%s" % perf_key)
+   print("\t%s" % '\t'.join(complexity_keys))
 
    for aligner in os.listdir(args['dir']):
       performance_data = tsv.Read(os.path.join(args['dir'], aligner), '\t')
@@ -97,9 +100,9 @@ def run(args, complexity_keys, perf_key, training_size, ITER):
             train_and_test(complexity_data, performance_data, x, y, training_size, ITER)
          R.append(average_R)
          err.append(average_err)
-      print("%s" % aligner)
-      print("mean_R  \t%s" % '\t'.join([str(round(i,2)) for i in R]))
-      print("mean_err\t%s" % '\t'.join([str(round(i,4)) for i in err]))
+      print("%s\t%s" % (aligner.replace('.txt',''), '\t'.join([str(round(i,2)) for i in R])))
+      if training_size < len(complexity_data):
+         print("%s\t%s" % (aligner.replace('.txt',''),'\t'.join([str(round(i,4)) for i in err])))
 
 
 
@@ -114,7 +117,7 @@ if __name__ == '__main__':
    complexity_data = tsv.Read(args['complexity'], '\t')
    TRAIN_FRAC = args['training_portion']
    training_size = int((len(complexity_data) - len(IGNORE)) * TRAIN_FRAC) if not BIAS_TRAIN_DATA else len(BIAS_TRAIN_DATA)
-   ITER = 100 if (not BIAS_TRAIN_DATA) and (training_size < len(complexity_data)) else 1
+   ITER = 100 if TRAIN_FRAC < 1 else 1
 
    print ("Sample size\t%d\nTraining size\t%d (%.2f * (%d-%d))\nIteration\t%d" %
       (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data),len(IGNORE), ITER))
