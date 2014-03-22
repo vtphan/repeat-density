@@ -7,11 +7,11 @@ package genomecomplexity
 
 import (
     "fmt"
-    "sort"
     "os"
     "bufio"
     "bytes"
     "math"
+    "io/ioutil"
 )
 
 type Index struct{
@@ -20,23 +20,13 @@ type Index struct{
     lcp []int
 }
 
-func (x *Index) Len() int           { return len(x.sa) }
-func (x *Index) Less(i, j int) bool { return bytes.Compare(x.at(i), x.at(j)) < 0 }
-func (x *Index) Swap(i, j int)      { x.sa[i], x.sa[j] = x.sa[j], x.sa[i] }
-func (a *Index) at(i int) []byte    { return a.data[a.sa[i]:] }
-
-
 func (idx *Index) Build(filename string) {
-    idx.data = fastaRead(filename)
-    idx.sa = make([]int, len(idx.data))
-    idx.lcp = make([]int, len(idx.data)-1)  // lcp[i] stores length of lcp of sa[i] and sa[i+1]
-    for i := 0; i < len(idx.data); i++ {
-        idx.sa[i] = i
-    }
-    sort.Sort(idx)
-    for i := 1; i < len(idx.data); i++ {
-        idx.lcp[i-1] = idx.lcp_len(i)
-    }
+   idx.data = ReadSequence(filename)
+   idx.lcp = make([]int, len(idx.data)-1)  // lcp[i] stores length of lcp of sa[i] and sa[i+1]
+   idx.sa = qsufsort(idx.data)
+   for i := 1; i < len(idx.data); i++ {
+      idx.lcp[i-1] = idx.lcp_len(i)
+   }
 }
 
 // length of longest common prefix of data[SA[m]:] and data[SA[m-1]:]
@@ -145,3 +135,27 @@ func fastaRead(sequence_file string) []byte {
     return input
 }
 
+func ReadSequence(file string) []byte{
+   f, err := os.Open(file)
+   if err != nil {
+      panic(err)
+   }
+   defer f.Close()
+   byte_array := make([]byte, 0)
+
+   if file[len(file)-6:] == ".fasta" {
+      scanner := bufio.NewScanner(f)
+      for scanner.Scan() {
+         line := scanner.Bytes()
+         if len(line)>0 && line[0] != '>' {
+            byte_array = append(byte_array, bytes.Trim(line,"\n\r ")...)
+         }
+      }
+   } else {
+      byte_array, err = ioutil.ReadFile(file)
+      if err != nil {
+         panic(err)
+      }
+   }
+   return byte_array
+}
