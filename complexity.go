@@ -15,7 +15,7 @@ import (
 )
 
 type Index struct{
-    data [] byte
+    data []byte
     sa []int
     lcp []int
 }
@@ -29,7 +29,7 @@ func (a *Index) at(i int) []byte    { return a.data[a.sa[i]:] }
 func (idx *Index) Build(filename string) {
     idx.data = fastaRead(filename)
     idx.sa = make([]int, len(idx.data))
-    idx.lcp = make([]int, len(idx.data)-1)
+    idx.lcp = make([]int, len(idx.data)-1)  // lcp[i] stores length of lcp of sa[i] and sa[i+1]
     for i := 0; i < len(idx.data); i++ {
         idx.sa[i] = i
     }
@@ -61,11 +61,17 @@ func (idx Index) D() float64{
 // Dk = rate of distinct k-mers
 func (idx Index) Dk(k int) float64{
     var c uint64 = 0
+    if idx.sa[0] <= len(idx.data)-k {
+      c++
+      // fmt.Println(string(idx.data[idx.sa[0] : idx.sa[0]+k]))
+    }
     for i := 1; i < len(idx.data); i++ {
-        if idx.lcp[i-1] < k && len(idx.data)-idx.sa[i] >= k {
+        if idx.lcp[i-1] < k && idx.sa[i] <= len(idx.data)-k {
             c++
+            // fmt.Println(string(idx.data[idx.sa[i] : idx.sa[i]+k]))
         }
     }
+    // return float64(c)
     return float64(c)/float64(len(idx.data) - k + 1)
 }
 
@@ -96,21 +102,21 @@ func (idx Index) Rk(k int) float64{
 
 // I complexity (Becher & Heiber, 2012)
 func (idx *Index) I() float64 {
-    var sum float64 = 0
-    for _, v := range idx.lcp {
-        sum += (math.Log(float64(v+2)) - math.Log(float64(v+1))) / math.Log(4.0)
-    }
-    return sum
+   var sum float64 = 0
+   for _, v := range idx.lcp {
+      sum += (math.Log(float64(v+2)) - math.Log(float64(v+1))) / math.Log(4.0)
+   }
+   return sum
 }
 
 func (idx Index) Ik(k int) float64{
-    var sum float64 = 0
-    for i := 1; i < len(idx.data); i++ {
-        if idx.lcp[i-1] < k && len(idx.data)-idx.sa[i] >= k {
-           sum += (math.Log(float64(idx.lcp[i]+2)) - math.Log(float64(idx.lcp[i]+1))) / math.Log(4.0)
-        }
-    }
-    return sum
+   var sum float64 = 0
+   for i := 1; i < len(idx.data); i++ {
+     if idx.lcp[i-1] < k && len(idx.data)-idx.sa[i] >= k {
+        sum += (math.Log(float64(idx.lcp[i-1]+2)) - math.Log(float64(idx.lcp[i-1]+1))) / math.Log(4.0)
+     }
+   }
+   return sum
 }
 
 func fastaRead(sequence_file string) []byte {

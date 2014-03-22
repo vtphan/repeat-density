@@ -1,0 +1,2 @@
+>test d1=4{a,b,c,d}, d2=5{db,bc,ca,aa,ac}, d3=6{dbc,bca,caa,aaa,aac,aca}, d4=6{dbca,bcaa,caaa,aaaa,aaac,aaca}
+dbcaaaaca
