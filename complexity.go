@@ -22,8 +22,8 @@ type Index struct{
 
 func (idx *Index) Build(filename string) {
    idx.data = ReadSequence(filename)
-   idx.lcp = make([]int, len(idx.data)-1)  // lcp[i] stores length of lcp of sa[i] and sa[i+1]
    idx.sa = qsufsort(idx.data)
+   idx.lcp = make([]int, len(idx.data)-1)  // lcp[i] stores length of lcp of sa[i] and sa[i+1]
    for i := 1; i < len(idx.data); i++ {
       idx.lcp[i-1] = idx.lcp_len(i)
    }
