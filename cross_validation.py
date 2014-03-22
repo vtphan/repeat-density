@@ -10,7 +10,7 @@ import os
 # y = slope * x + intercept
 from scipy import stats
 
-IGNORE = ['CM000777.fasta']
+IGNORE = [] #['CM000777.fasta']
 
 BIAS_TRAIN_DATA = []
 
@@ -101,7 +101,7 @@ def run(args, complexity_keys, perf_key, training_size, ITER):
          R.append(average_R)
          err.append(average_err)
       print("%s\t%s" % (aligner.replace('.txt',''), '\t'.join([str(round(i,2)) for i in R])))
-      if training_size < len(complexity_data):
+      if training_size+len(IGNORE) < len(complexity_data):
          print("%s\t%s" % (aligner.replace('.txt',''),'\t'.join([str(round(i,4)) for i in err])))
 
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
       (len(complexity_data), training_size, TRAIN_FRAC, len(complexity_data),len(IGNORE), ITER))
 
 
-   complexity_keys = ['D12', 'D25', 'D50', 'D100', 'D200', 'D400', 'R12', 'R25', 'R50', 'R100', 'R200','R400', 'D', 'I' ]
+   complexity_keys = ['D12', 'D25', 'D50', 'D75', 'D100', 'D200', 'R12', 'R25', 'R50', 'R75', 'R100', 'R200', 'D', 'I' ]
 
    for perf_key in args['performance_keys']:
       run(args, complexity_keys, perf_key, training_size, ITER)

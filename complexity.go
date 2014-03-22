@@ -1,7 +1,7 @@
 /*
 Author: Vinhthuy Phan, Shanshan Gao
 Copyright 2014
-Measures of complexity: I, D, Dk, Rk
+Measures of complexity: I, Ik, D, Dk, Rk
 */
 package genomecomplexity
 
@@ -99,6 +99,16 @@ func (idx *Index) I() float64 {
     var sum float64 = 0
     for _, v := range idx.lcp {
         sum += (math.Log(float64(v+2)) - math.Log(float64(v+1))) / math.Log(4.0)
+    }
+    return sum
+}
+
+func (idx Index) Ik(k int) float64{
+    var sum float64 = 0
+    for i := 1; i < len(idx.data); i++ {
+        if idx.lcp[i-1] < k && len(idx.data)-idx.sa[i] >= k {
+           sum += (math.Log(float64(idx.lcp[i]+2)) - math.Log(float64(idx.lcp[i]+1))) / math.Log(4.0)
+        }
     }
     return sum
 }
