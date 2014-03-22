@@ -6,7 +6,7 @@ Measures of complexity: I, Ik, D, Dk, Rk
 package genomecomplexity
 
 import (
-    "fmt"
+    // "fmt"
     "os"
     "bufio"
     "bytes"
@@ -107,32 +107,6 @@ func (idx Index) Ik(k int) float64{
      }
    }
    return sum
-}
-
-func fastaRead(sequence_file string) []byte {
-    f,err := os.Open(sequence_file)
-    if err != nil{
-        fmt.Printf("%v\n",err)
-        os.Exit(1)
-    }
-
-    defer f.Close()
-    br := bufio.NewReader(f)
-    byte_array := bytes.Buffer{}
-
-    _ , err = br.ReadString('\n')
-    for {
-        line , isPrefix, err := br.ReadLine()
-        if err != nil || isPrefix{
-            break
-        } else {
-            byte_array.Write([]byte(line))
-        }
-    }
-    // do not add $ at the end of the text
-    // byte_array.Write([]byte("$"))
-    input := []byte(byte_array.String())
-    return input
 }
 
 func ReadSequence(file string) []byte{
