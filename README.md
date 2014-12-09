@@ -9,4 +9,8 @@ Install genome-complexity.go:
 	go get github.com/vtphan/sequence-complexity
 
 
-Use test/compute_complexity.go to compute various complexity measures.
+Example:
+
+```
+    go run test/compute_complexity.go test/CP003835.fasta
+```
