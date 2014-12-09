@@ -6,8 +6,9 @@ genome-complexity.go:
 
 Install genome-complexity.go:
 
-	go get github.com/vtphan/sequence-complexity
-
+```
+    go get github.com/vtphan/sequence-complexity
+```
 
 Example:
 
