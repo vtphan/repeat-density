@@ -12,5 +12,9 @@ func main(){
     }
     idx := new(comp.Index)
     idx.Build(os.Args[1])
-    fmt.Printf("%s\t%f\t%f\t%f\t%f\n", os.Args[1], idx.Dk(1), idx.Dk(2), idx.Dk(3),idx.Dk(4))
+    fmt.Printf("%s\tD\t%f\n", os.Args[1], idx.D())
+    fmt.Printf("%s\tI\t%f\n", os.Args[1], idx.I())
+    for k:=2; k<=24; k+=2 {
+        fmt.Printf("%s\tD%d\t%f\n", os.Args[1], k, idx.Dk(k))
+    }
 }
