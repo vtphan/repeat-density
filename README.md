@@ -1,6 +1,9 @@
-This program computes various measures of genome complexity, including
+complexity.go computes various measures of genome complexity, including
 the I complexity, D complexity, D_k complexity and R_k complexity.  The program
 is written in the Go programming language.
+
+complexity.go will remove Ns from the sequence (in FASAT format). Long stretches of N's
+must be removed since they would affect incorrectly the complexity of the sequence.
 
 ## Usage
 
