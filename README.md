@@ -17,7 +17,7 @@ Install genome-complexity.go:
 Compute D, I, D_25, D_50, D_75, D_100, D_125, D_150, D_175, D_200:
 
 ```
-    go run test/compute_complexity.go test/CP003835.fasta
+    go run usage/compute_complexity.go usage/CP003835.fasta
 ```
 
-If you want to compute other D_k, modify test/compute_complexity.go accordingly.
+If you want to compute other D_k, modify usage/compute_complexity.go accordingly.
