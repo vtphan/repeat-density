@@ -14,7 +14,7 @@ The program is written in the Go programming language.
 
 ## Usage
 
-Compute D, I, D_25, D_50, D_75, D_100, D_125, D_150, D_175, D_200:
+Compute D, I, D_25, D_50, D_75, D_100, D_125, D_150, D_175, D_200 from sample sequence (in FASTA format).
 
 ```
     go run usage/compute_complexity.go usage/CP003835.fasta
