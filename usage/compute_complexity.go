@@ -1,3 +1,7 @@
+/*
+Compute D, I, D_25, D_50, D_75, D_100, D_125, D_150, D_175, D_200 of an input sequence
+in FASTA format.
+*/
 package main
 
 import (
