@@ -1,4 +1,8 @@
-## Compute Various Measures of Complexity
+This program computes various measures of genome complexity, including
+the I complexity, D complexity, D_k complexity and R_k complexity.  The program
+is written in the Go programming language.
+
+## Usage
 
 genome-complexity.go:
 	Compute various complexities of genomes, include repeat density,
