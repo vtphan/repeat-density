@@ -121,13 +121,14 @@ func ReadSequence(file string) []byte{
    }
    defer f.Close()
    byte_array := make([]byte, 0)
-
+   Ns := []byte("N")
+   None := []byte("")
    if file[len(file)-6:] == ".fasta" {
       scanner := bufio.NewScanner(f)
       for scanner.Scan() {
          line := scanner.Bytes()
          if len(line)>0 && line[0] != '>' {
-            byte_array = append(byte_array, bytes.Trim(line,"\n\r ")...)
+            byte_array = append(byte_array, bytes.Replace(bytes.Trim(line,"\n\r "), Ns, None, -1)...)
          }
       }
    } else {
