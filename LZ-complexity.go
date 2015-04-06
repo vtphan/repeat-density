@@ -20,39 +20,7 @@ import (
     "math"
     "io/ioutil"
 )
-/*
-func main(){
-   if len(os.Args) != 2 {
-      panic("must provide sequence file.")
-   }
-   
-   seq := ReadSequence(os.Args[1])
-   //fmt.Println(string(seq))
-   //fmt.Println(string(reverse(seq)))
-   if len(seq)>0 {      
-      c78 := LZ78(seq)
-      fmt.Print(c78, "\t")
 
-      //c76 := LZ76(seq)
-      //fmt.Print(c76, "\t")
-
-      rev78 := LZ78(reverse(seq))
-      //rev76 := LZ76(reverse(seq))
-      fmt.Print(c78+rev78, "\t")
-      //fmt.Print(c76+rev76, "\t")
-
-      //fmt.Print(Kolmogorov(seq), "\t")
-
-      nom := float64(len(seq))/math.Log2(float64(len(seq)))
-            
-      // Normalize
-      fmt.Print(float64(c78)/(nom), "\t")
-      //fmt.Print(float64(c76)/(nom), "\t")
-      fmt.Println(float64(c78+rev78)/(nom), "\t")
-      //fmt.Println(float64(c76+rev76)/(nom))
-   }
-}
-*/
 func Reverse(s []byte) []byte {
   rev := make([]byte, len(s))
   for i, elem := range s {
