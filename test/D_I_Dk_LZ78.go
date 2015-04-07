@@ -25,19 +25,33 @@ func main(){
         fmt.Print(idx.Dk(k), "\t")
     }
 
+    for k:=25; k<=200; k+=25 {
+        fmt.Print(idx.Rk(k), "\t")
+    }
+
     // LZ-complexity
     seq := comp.ReadSequence(os.Args[1])
     if len(seq)>0 {      
       c78 := comp.LZ78(seq)
       fmt.Print(c78, "\t")
 
-      rev78 := comp.LZ78(comp.Reverse(seq))
-      fmt.Print(c78+rev78, "\t")
-
-      nom := float64(len(seq))/math.Log2(float64(len(seq)))
-            
+      norm := NormLZ78(len(seq))
       // Normalize
-      fmt.Print(float64(c78)/(nom), "\t")
-      fmt.Println(float64(c78+rev78)/(nom), "\t")
+      fmt.Print(float64(c78)/(norm), "\t")
    }
+}
+
+func NormLZ78(n int) float64 {
+  var rs, i, c float64
+  rs = 0
+  i = 0
+  c = 0
+  for {
+    i++
+    f := math.Pow(4,i)
+    c += i * f
+    if (c>float64(n)) { break } else { rs += f }
+  }  
+  rs += (float64(n)-rs)/i
+  return rs
 }
